@@ -1,6 +1,0 @@
-Flask
-flask-restx
-requests
-python-dotenv
-pytest
-coverage

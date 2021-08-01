@@ -4,3 +4,6 @@ requests
 python-dotenv
 pytest
 coverage
+opentelemetry-instrumentation-flask
+opentelemetry-instrumentation-requests
+opentelemetry-exporter-jaeger
