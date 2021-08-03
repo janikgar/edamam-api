@@ -14,7 +14,7 @@ def test_get_root(client):
 def test_get_upc(client):
     request = client.get('/upc/00000000')
     assert request.status_code != 404
-    assert request.json['upc'] == '00000000'
+    assert request.json['query']['upc'] == '00000000'
 
 def test_get_ingredient(client):
     request = client.get('/ingredient/apple')
