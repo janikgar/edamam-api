@@ -16,7 +16,6 @@ def create_app(test_config=None) -> Flask:
         resource=TraceResource.create({'service.name':'edamam_flask'})
     ))
     trace.get_tracer_provider().add_span_processor(
-        # BatchSpanProcessor(ConsoleSpanExporter())
         BatchSpanProcessor(JaegerExporter(
             agent_host_name='localhost',
             agent_port=6831,

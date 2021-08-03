@@ -2,7 +2,7 @@ venv/
 __pycache__/
 .vscode/
 edamam_flask.egg-info/
-pytest_cache/
+.pytest_cache/
 build/
 dist/
 .env
