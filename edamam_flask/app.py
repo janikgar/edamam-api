@@ -10,122 +10,12 @@ from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.resources import Resource as TraceResource
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter  
-from edamam_flask.edamam import get_upc, get_ingredient
-
-nutrient_map = {
-    'CA': {
-        'name': 'Calcium',
-        'unit': 'mg',
-    },
-    'CHOCDF': {
-        'name': 'Carbohydrates',
-        'unit': 'g',
-    },
-    'CHOLE': {
-        'name': 'Cholesterol',
-        'unit': 'mg',
-    },
-    'FAMS': {
-        'name': 'Monounsaturated Fat',
-        'unit': 'g',
-    },
-    'FAPU': {
-        'name': 'Polyunsaturated Fat',
-        'unit': 'g',
-    },
-    'FASAT': {
-        'name': 'Saturated Fat',
-        'unit': 'g',
-    },
-    'FAT': {
-        'name': 'Fat',
-        'unit': 'g',
-    },
-    'FATRN': {
-        'name': 'Trans Fat',
-        'unit': 'g',
-    },
-    'FE': {
-        'name': 'Iron',
-        'unit': 'mg'
-    },
-    'FIBTG': {
-        'name': 'Fiber',
-        'unit': 'g',
-    },
-    'FOLDFE': {
-        'name': 'Folate',
-        'unit': 'mcg',
-    },
-    'K': {
-        'name': 'Potassium',
-        'unit': 'mg',
-    },
-    'MG': {
-        'name': 'Magnesium',
-        'unit': 'mg',
-    },
-    'NA': {
-        'name': 'Sodium',
-        'unit': 'mg',
-    },
-    'ENERC_KCAL': {
-        'name': 'Calories',
-        'unit': 'kcal',
-    },
-    'NIA': {
-        'name': 'Niacin',
-        'unit': 'mg',
-    },
-    'P': {
-        'name': 'Phosphorus',
-        'unit': 'mg',
-    },
-    'PROCNT': {
-        'name': 'Protein',
-        'unit': 'g',
-    },
-    'RIBF': {
-        'name': 'Riboflavin',
-        'unit': 'mg',
-    },
-    'SUGAR': {
-        'name': 'Sugar',
-        'unit': 'g',
-    },
-    'THIA': {
-        'name': 'Thiamin',
-        'unit': 'mg',
-    },
-    'TOCPHA': {
-        'name': 'Vitamin E',
-        'unit': 'mg',
-    },
-    'VITA_RAE': {
-        'name': 'Vitamin A',
-        'unit': 'mcg',
-    },
-    'VITB12': {
-        'name': 'Vitamin B12',
-        'unit': 'mcg',
-    },
-    'VITB6A': {
-        'name': 'Vitamin B6',
-        'unit': 'mg',
-    },
-    'VITC': {
-        'name': 'Vitamin C',
-        'unit': 'mg',
-    },
-    'VITD': {
-        'name': 'Vitamin D',
-        'unit': 'mcg',
-    },
-    'VITK1': {
-        'name': 'Vitamin K',
-        'unit': 'mcg',
-    }
-}
+from edamam_flask.edamam import (
+    get_upc,
+    get_ingredient,
+    get_autocomplete,
+)
+from edamam_flask.common import nutrient_map
 
 def create_app(test_config=None) -> Flask:
     app = Flask(__name__)
@@ -147,17 +37,30 @@ def create_app(test_config=None) -> Flask:
     tracer = trace.get_tracer_provider().get_tracer(__name__)
     api = Api(app)
 
-    @api.route('/upc/<upc>')
+    @api.route('/api/upc/<upc>')
     class Upc(Resource):
         def get(self, upc: str):
             return get_upc(upc)
 
-    @api.route('/ingredient/<ingredient>')
+    @api.route('/api/ingredient/<ingredient>')
     class Ingredient(Resource):
         def get(self, ingredient: str):
             return get_ingredient(ingredient)
+
+    @api.route('/api/autocomplete/<query>')
+    class AutoComplete(Resource):
+        def get(self, query: str, limit: int = 10):
+            return get_autocomplete(query=query, limit=limit)
+
+    @app.route('/home')
+    def render_home():
+        title = 'Food Facts'
+        return render_template(
+            'render.html',
+            title=title,
+        )
     
-    @app.route('/render/upc/<upc>')
+    @app.route('/upc/<upc>')
     def render_upc(upc: str):
         upc_data = get_upc(upc)
         upc_data_content = upc_data.json
