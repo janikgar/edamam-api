@@ -13,6 +13,10 @@ def get_ingredient(ingredient: str, extras: dict = {}) -> Response:
     params = {'ingr': ingredient} | extras
     return query_edamam('GET', '/api/food-database/v2/parser', params)
 
+def get_autocomplete(query: str, limit: int) -> Response:
+    params = {'q': query, 'limit': limit}
+    return query_edamam('GET', '/auto-complete', params)
+
 def query_edamam(method: str, url: str, params: dict) -> Response:
     base_params = {
         'app_id': os.getenv('EDAMAM_FOOD_APP_ID'),

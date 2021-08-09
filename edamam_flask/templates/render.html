@@ -10,7 +10,7 @@
 </head>
 <body>
   <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Food Facts</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -31,6 +31,12 @@
             {% endif %}
           </ul>
         </div>
+        <form class="d-flex">
+          <div class="dropdown" id="searchdrop" aria-expanded="false" data-bs-offset="0,20">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchbar" autocomplete="off" data-bs-toggle="dropdown">
+            <ul class="dropdown-menu" aria-labelledby="searchbar" id="searchdroplist"></ul>
+          </div>
+        </form>
       </div>
     </nav>
   </header>
@@ -59,7 +65,7 @@
             {% for serving_size in serving_sizes %}
             <tr>
               <td>
-                {{ "%d" % serving_size['quantity'] }} {{ serving_size['label'] }}
+                {{ "%d" % serving_size["quantity"] }} {{ serving_size["label"] }}
               </td>
             </tr>
             {% endfor %}
@@ -89,10 +95,10 @@
               {% for nutrient in nutrients %}
               <tr>
                 <td>
-                  {{ nutrient_map[nutrient]['name'] }}
+                  {{ nutrient_map[nutrient]["name"] }}
                 </td>
                 <td>
-                  {{ "%d" % nutrients[nutrient] }} {{nutrient_map[nutrient]['unit']}}
+                  {{ "%d" % nutrients[nutrient] }} {{nutrient_map[nutrient]["unit"]}}
                 </td>
               </tr>
               {% endfor %}
@@ -105,8 +111,43 @@
       <div id="edamam-badge" data-color="transparent"></div>
     </footer>
   </div>
+  <script>
+    function getSuggestions(e) {
+      e.preventDefault();
+      var query = e.target.value;
+      let targetDropdown = document.getElementById("searchdroplist");
+      if (query.length < 4) {
+        targetDropdown.innerHTML = '';
+        targetDropdown.classList.remove('show');
+      }
+      console.log(query);
+      const request = new XMLHttpRequest();
+      request.responseType = "json";
+      request.open("GET", `/api/autocomplete/${query}`);
+      request.onload = () => {
+        targetDropdown.innerHTML = '';
+        const responses = request.response.content;
+        for (let response of responses) {
+          let newItem = document.createElement('LI');
+          let newItemLink = document.createElement('A');
+          newItemLink.className = 'dropdown-item';
+          newItemLink.innerText = response;
+          newItemLink.setAttribute('href', `/ingredient/${newItemLink.innerText}`);
+          newItem.appendChild(newItemLink);
+          targetDropdown.appendChild(newItem);
+        }
+        targetDropdown.classList.add('show');
+      }
+      request.send();
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("adding event listener");
+      const searchBar = document.getElementById("searchbar")
+      var inputQuery = searchBar.innerText;
+      searchBar.addEventListener("input", getSuggestions);
+    });
+  </script>
   <script src="https://developer.edamam.com/attribution/badge.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.js" crossorigin="anonymous"></script>
 </body>
 </html>
