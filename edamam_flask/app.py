@@ -59,13 +59,29 @@ def create_app(test_config=None) -> Flask:
             'render.html',
             title=title,
         )
+
+    @app.route('/ingredient/<ingredient>')
+    def render_ingredient(ingredient: str):
+        ingredient_data = get_ingredient(ingredient).json
+        food_data = ingredient_data['content']['hints'][0]['food']
+        title = food_data['label']
+        try:
+            image = food_data['image']
+        except KeyError:
+            image = '#'
+        nutrients = food_data['nutrients']
+        return render_template(
+            'render.html',
+            title=title,
+            image=image,
+            nutrients=nutrients,
+            nutrient_map=nutrient_map,
+            )
     
     @app.route('/upc/<upc>')
     def render_upc(upc: str):
-        upc_data = get_upc(upc)
-        upc_data_content = upc_data.json
-        food_data = upc_data_content['content']['hints'][0]['food']
-        print(food_data)
+        upc_data = get_upc(upc).json
+        food_data = upc_data['content']['hints'][0]['food']
         title = food_data['label']
         image = food_data['image']
         nutrients = food_data['nutrients']
